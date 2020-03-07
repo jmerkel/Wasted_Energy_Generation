@@ -45,6 +45,22 @@ energy_df["excessive waste"] = energy_df["generation waste"].\
 print(energy_df[["generation waste", "excessive waste"]].tail(10))
 print(energy_df["excessive waste"].value_counts())
 
+#for column in energy_df.columns:
+#    print ([column, energy_df[column].isnull().sum()])
+
+energy_clean_df = energy_df.drop(['generation hydro pumped storage aggregated', 'forecast wind offshore eday ahead'], 1)
+
+#for column in energy_clean_df.columns:
+#    print ([column, energy_clean_df[column].isnull().sum()])
+
+energy_clean_df = energy_clean_df.dropna()
+print("Energy Table")
+for column in energy_clean_df.columns:
+    print ([column, energy_clean_df[column].isnull().sum()])
+
+print("Madrid Weather Table")
+for column in Madrid_df.columns:
+    print ([column, Madrid_df[column].isnull().sum()])
 # Initial Code testing to be done with Madrid DF
 # Combine with Weather
 # Machine Learning
