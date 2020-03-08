@@ -1,17 +1,13 @@
 # Import Libraries
 import pandas as pd
-
-# Library Settings
 pd.set_option('display.max_columns', None)
 
 # Import Data
 weather_path="Resources/weather_features.csv"
 weather_df=pd.read_csv(weather_path)
-weather_df.head()
 
 energy_path="Resources/energy_dataset.csv"
 energy_df=pd.read_csv(energy_path)
-energy_df.head()
 
 ### Preprocessing
 weather_df["city_name"].unique()
@@ -30,38 +26,65 @@ Bilbao_df.drop_duplicates(keep=False,inplace=True)
 Barcelona_df.drop_duplicates(keep=False,inplace=True)
 Seville_df.drop_duplicates(keep=False,inplace=True)
 
-print(len(Valencia_df),len(Madrid_df),len(Bilbao_df),len(Barcelona_df),len(Seville_df))
-
 
 ## Energy Frames
-energy_df = energy_df[pd.notnull(energy_df["generation waste"])]
-
 # Determine cutoff point for Excessive Wasted Energy
-print(energy_df["generation waste"].describe())
+energy_df = energy_df[pd.notnull(energy_df["generation waste"])]
+print(energy_df["generation waste"].describe()) 
 
 # Prep Dataframe - 310 MW is cutoff (Describe 75% showed 310 MW)
 energy_df["excessive waste"] = energy_df["generation waste"].\
     map(lambda x: 1 if x > 310.0 else 0)
-print(energy_df[["generation waste", "excessive waste"]].tail(10))
-print(energy_df["excessive waste"].value_counts())
 
-#for column in energy_df.columns:
-#    print ([column, energy_df[column].isnull().sum()])
+print("\nFind NaN energy items")
+for column in energy_df.columns:
+    print ([column, energy_df[column].isnull().sum()])
 
 energy_clean_df = energy_df.drop(['generation hydro pumped storage aggregated', 'forecast wind offshore eday ahead'], 1)
-
-#for column in energy_clean_df.columns:
-#    print ([column, energy_clean_df[column].isnull().sum()])
-
 energy_clean_df = energy_clean_df.dropna()
-print("Energy Table")
+
+print("\n")
+print("Energy Table Columns")
 for column in energy_clean_df.columns:
     print ([column, energy_clean_df[column].isnull().sum()])
 
-print("Madrid Weather Table")
+
+# Initial Code testing to be done with Madrid DF
+print("\n")
+print("Madrid Weather Tabl Columns")
 for column in Madrid_df.columns:
     print ([column, Madrid_df[column].isnull().sum()])
-# Initial Code testing to be done with Madrid DF
-# Combine with Weather
+
+## Prep Tables for Processing
+# Prep Weather Table for Merge
+# Drop non needed columns (descriptions, weather Description (ID code remains), )
+Madrid_Prep_df = Madrid_df.drop(["city_name", "weather_main", "weather_description", "weather_icon"], 1)
+
+# Prep Energy Table for Merge
+energy_clean_df = energy_clean_df.rename(columns={"time": "dt_iso"})
+energy_forecast_df = energy_clean_df[[
+    "dt_iso", 
+    "forecast solar day ahead", 
+    "forecast wind onshore day ahead", 
+    "total load forecast",
+    "price day ahead",
+    "excessive waste"]].copy()
+
+# Merge Madrid with weather & energy forecasts
+print(Madrid_Prep_df.dtypes)
+print()
+print(energy_forecast_df.dtypes)
+
+# Inner Join
+Madrid_Weather_Data_df = Madrid_Prep_df.merge(energy_forecast_df, on="dt_iso") 
+print(Madrid_Weather_Data_df.head())
+
+# Madrid with only weather
+Madrid_Weather_Data_v2_df = Madrid_Weather_Data_df.drop([
+    "forecast solar day ahead",
+    "forecast wind onshore day ahead",
+    "total load forecast",
+    "price day ahead",
+    "weather_id"],1)
+
 # Machine Learning
-# Output
