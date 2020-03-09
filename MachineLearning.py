@@ -77,7 +77,13 @@ print(energy_forecast_df.dtypes)
 
 # Inner Join
 Madrid_Weather_Data_df = Madrid_Prep_df.merge(energy_forecast_df, on="dt_iso") 
+Madrid_Weather_Data_df["dt_iso"] = pd.to_datetime(Madrid_Weather_Data_df["dt_iso"], utc=True, infer_datetime_format=True)
+
+print("\nColumn Types")
+print(Madrid_Weather_Data_df.dtypes)
+print("\nCheck Values")
 print(Madrid_Weather_Data_df.head())
+
 
 # Madrid with only weather
 Madrid_Weather_Data_v2_df = Madrid_Weather_Data_df.drop([
