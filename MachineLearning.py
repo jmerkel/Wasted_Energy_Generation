@@ -2,6 +2,13 @@
 import pandas as pd
 pd.set_option('display.max_columns', None)
 
+import sqlite3
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import session
+from sqlalchemy import create_engine, func
+
+
 # Import Data
 weather_path="Resources/weather_features.csv"
 weather_df=pd.read_csv(weather_path)
@@ -92,5 +99,21 @@ Madrid_Weather_Data_v2_df = Madrid_Weather_Data_df.drop([
     "total load forecast",
     "price day ahead",
     "weather_id"],1)
+
+#SQLAlchemy & SQLite
+## Write Data - SQLite
+engine = create_engine('sqlite://', echo=False)
+conn = sqlite3.connect('MadridWeatherDF.sqlite')
+Madrid_Weather_Data_df.to_sql('energy_forecast', conn, if_exists='replace', index=False)
+print(pd.read_sql('select * from energy_forecast', conn))
+
+
+#### READ SQLite DB ####
+#Base = automap_base()
+#engine = create_engine("sqlite:///energy.sqlite")
+#Base.prepare(engine, reflect=True)
+#Base.classes.keys() # View Classes found by automap
+#session = Session(engine) # Allow query
+
 
 # Machine Learning
