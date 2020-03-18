@@ -1,13 +1,17 @@
 # Import Libraries
 import pandas as pd
 pd.set_option('display.max_columns', None)
-
+import datetime as dt
+from datetime import timezone
 import sqlite3
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import session
 from sqlalchemy import create_engine, func
-
+import plotly.express as px
+import hvplot.pandas
+from sklearn.cluster import KMeans
+from sklearn.model_selection import train_test_split
 
 # Import Data
 weather_path="Resources/weather_features.csv"
@@ -58,7 +62,7 @@ for column in energy_clean_df.columns:
 
 # Initial Code testing to be done with Madrid DF
 print("\n")
-print("Madrid Weather Tabl Columns")
+print("Madrid Weather eolumns")
 for column in Madrid_df.columns:
     print ([column, Madrid_df[column].isnull().sum()])
 
@@ -85,11 +89,10 @@ print(energy_forecast_df.dtypes)
 # Inner Join
 Madrid_Weather_Data_df = Madrid_Prep_df.merge(energy_forecast_df, on="dt_iso") 
 Madrid_Weather_Data_df["dt_iso"] = pd.to_datetime(Madrid_Weather_Data_df["dt_iso"], utc=True, infer_datetime_format=True)
+Madrid_Weather_Data_df["dt_iso"] = pd.to_datetime(Madrid_Weather_Data_df["dt_iso"]).astype(int)/10**9
 
 print("\nColumn Types")
 print(Madrid_Weather_Data_df.dtypes)
-print("\nCheck Values")
-print(Madrid_Weather_Data_df.head())
 
 
 # Madrid with only weather
@@ -117,3 +120,67 @@ print(pd.read_sql('select * from energy_forecast', conn))
 
 
 # Machine Learning
+## Verify Excessive waste column is 0 or 1
+print("Excessive Waste Unique Values")
+print(Madrid_Weather_Data_df["excessive waste"].unique())
+
+## Unsupervised Learning
+
+## Supervised Learning
+model=KMeans(n_clusters=3,random_state=5)
+model.fit(Madrid_Weather_Data_df)
+# Check the relation between pressure, temperature by the class of excessive waste
+Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
+
+#The plot above tell people that the majority of the excessive waste happened when the pressure goes high. 
+#From that, we can probably had a clue this distribuction can lead to some clue. 
+#Let's try to run the K-means test with different clusters.
+
+def test_cluster_amount(df,clusters):
+    model=KMeans(n_clusters=clusters,random_state=5)
+    model
+    model.fit(df)
+    df["excessive waste"]=model.labels_
+
+def get_clusters(k,data):
+    model=KMeans(n_clusters=k,random_state=0)
+    model.fit(data)
+    predictions=model.predict(data)
+    data["excessive waste"]=model.labels_
+    return data
+
+
+# only 1 cluster
+Madrid_Weather_Data_df.hvplot.scatter(x="temp",y="pressure")
+
+#K-Means prediction of 2 clusters
+test_cluster_amount(Madrid_Weather_Data_df,2)
+Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
+
+#test_cluster_amount(Madrid_Weather_Data_df,3)
+#Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
+
+## This plot does not tell anythings, still needs to optimize
+fig=px.scatter_3d(Madrid_Weather_Data_df,
+                 x="temp",
+                 y="pressure",
+                 z="humidity",
+                  color="excessive waste",
+                  symbol="excessive waste",
+                  size="temp",
+                  width=800,
+                  )
+fig.update_layout(legend=dict(x=0,y=1))
+fig.show()
+
+inertia=[]
+k=list(range(1,11))
+for i in k:
+    km=KMeans(n_clusters=i,random_state=0)
+    km.fit(Madrid_Weather_Data_df)
+inertia.append(km.inertia_)
+
+two_clusters=get_clusters(2,Madrid_Weather_Data_df)
+two_clusters.head()
+
+Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
