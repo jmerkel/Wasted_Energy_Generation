@@ -16,8 +16,7 @@ def import_data(path):
     return pd.read_csv(path)
 
 def create_city(weather_df, CityName):
-    df = weather_df.loc[weather_df["city_name"] == CityName]
-    
+    df= weather_df.loc[weather_df["city_name"] == CityName]
     # Prep Weather Table for Merge
     # Drop non needed columns (descriptions, weather Description (ID code remains), )
     city_df = df.drop_duplicates(keep=False, inplace=False)
@@ -68,8 +67,11 @@ energy_df = import_data("Resources/energy_dataset.csv")
 
 # Preprocessing
 print("Find all Unique city Names") 
-weather_df["city_name"].unique()
+print(weather_df["city_name"].unique())
 print("\n")
+
+## Barcelona has a space in front of the string
+weather_df["city_name"] = weather_df["city_name"].str.strip() #Remove leading & trailing spaces
 
 # Weather Frames - Isolate the dataframes by city_name
 Madrid_df = create_city(weather_df, "Madrid")
@@ -78,6 +80,11 @@ Valencia_df = create_city(weather_df, "Valencia")
 Seville_df = create_city(weather_df, "Seville")
 Bilbao_df = create_city(weather_df, "Bilbao")
 
+print("Find all Unique city Names-Fix") 
+print(weather_df["city_name"].unique())
+print("\n")
+
+print(Barcelona_df.head())
 # Energy Frames
 energy_clean_df = clean_energy_table(energy_df)
 
@@ -113,8 +120,6 @@ print("\nColumn Types - Verification")
 print(Madrid_Weather_Data_df.dtypes)
 
 
-
-
 #SQLAlchemy & SQLite
 ## Write Data - SQLite
 engine = create_engine('sqlite:///Resources/energy_data.sqlite', echo=False)
@@ -127,12 +132,6 @@ write_SQL(engine, conn, Seville_Weather_Data_df, "forecast_Seville")
 write_SQL(engine, conn, Bilbao_Weather_Data_df, "forecast_Bilbao")
 
 
-print("Madrid")
-print(pd.read_sql('select * from forecast_Madrid', conn))
-print("\nBarcelona")
-print(pd.read_sql('select * from forecast_Barcelona', conn))
-
-
 #### READ SQLite DB ####
 #Base = automap_base()
 #engine = create_engine("sqlite:///energy.sqlite")
@@ -140,6 +139,14 @@ print(pd.read_sql('select * from forecast_Barcelona', conn))
 #Base.classes.keys() # View Classes found by automap
 #session = Session(engine) # Allow query
 
+Madrid_df = pd.read_sql('select * from forecast_Madrid', conn)
+Barcelona_df = pd.read_sql('select * from forecast_Barcelona', conn)
+Valencia_df = pd.read_sql('select * from forecast_Valencia', conn)
+Seville_df = pd.read_sql('select * from forecast_Seville', conn)
+Bilbao_df = pd.read_sql('select * from forecast_Bilbao', conn)
+
+print("Read DataFrame")
+print(Madrid_df.head())
 
 # Machine Learning Portion - Supervised Learning
 
