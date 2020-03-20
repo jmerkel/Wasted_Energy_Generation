@@ -1,8 +1,8 @@
 # Import Libraries
 import pandas as pd
 pd.set_option('display.max_columns', None)
-import datetime as dt
-from datetime import timezone
+#import datetime as dt
+#from datetime import timezone
 import sqlite3
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -13,58 +13,69 @@ import hvplot.pandas
 from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split
 
-# Import Data
-weather_path="Resources/weather_features.csv"
-weather_df=pd.read_csv(weather_path)
 
-energy_path="Resources/energy_dataset.csv"
-energy_df=pd.read_csv(energy_path)
+def import_data(path):
+    return pd.read_csv(path)
 
-### Preprocessing
-weather_df["city_name"].unique()
+def create_city(weather_df, CityName):
+    df = weather_df.loc[weather_df["city_name"] == CityName]
+    city_df = df.drop_duplicates(keep=False, inplace=False)
+    return city_df
 
-## Weather Frames
-# Isolate the dataframes by city_name
-Valencia_df=weather_df.loc[weather_df["city_name"]=="Valencia"]
-Madrid_df=weather_df.loc[weather_df["city_name"]=="Madrid"]
-Barcelona_df=weather_df.loc[weather_df["city_name"]==' Barcelona']
-Seville_df=weather_df.loc[weather_df["city_name"]=='Seville']
-Bilbao_df=weather_df.loc[weather_df["city_name"]=="Bilbao"]
+def clean_energy_table(energy_df):
+    # Determine cutoff point for Excessive Wasted Energy
+    energy_df = energy_df[pd.notnull(energy_df["generation waste"])]
+    print ("Describe the wasted energy valeues")
+    print(energy_df["generation waste"].describe())
+    print ("310 mW used as it describes upper quartile") 
 
-Valencia_df.drop_duplicates(keep=False,inplace=True)
-Madrid_df.drop_duplicates(keep=False,inplace=True)
-Bilbao_df.drop_duplicates(keep=False,inplace=True)
-Barcelona_df.drop_duplicates(keep=False,inplace=True)
-Seville_df.drop_duplicates(keep=False,inplace=True)
-
-
-## Energy Frames
-# Determine cutoff point for Excessive Wasted Energy
-energy_df = energy_df[pd.notnull(energy_df["generation waste"])]
-print(energy_df["generation waste"].describe()) 
-
-# Prep Dataframe - 310 MW is cutoff (Describe 75% showed 310 MW)
-energy_df["excessive waste"] = energy_df["generation waste"].\
+    # Prep Dataframe - 310 MW is cutoff (Describe 75% showed 310 MW)
+    energy_df["excessive waste"] = energy_df["generation waste"].\
     map(lambda x: 1 if x > 310.0 else 0)
 
-print("\nFind NaN energy items")
-for column in energy_df.columns:
-    print ([column, energy_df[column].isnull().sum()])
+    # Remove NaN fields
+    print("\nFind NaN energy items")
+    for column in energy_df.columns:
+        print ([column, energy_df[column].isnull().sum()])
 
-energy_clean_df = energy_df.drop(['generation hydro pumped storage aggregated', 'forecast wind offshore eday ahead'], 1)
-energy_clean_df = energy_clean_df.dropna()
+    # Data Empty from source - All values 0 - Determined from source values
+    energy_clean_df = energy_df.drop(['generation hydro pumped storage aggregated', 'forecast wind offshore eday ahead'], 1)
+    energy_clean_df = energy_clean_df.dropna()
+    return energy_clean_df
+    print("\n")
 
+def check_column(df, df_name):
+    print(df_name + " Column Null Values")
+    for column in df.columns:
+        print ([column, df[column].isnull().sum()])
+    print("\n")
+
+
+# Import Data
+weather_df = import_data("Resources/weather_features.csv")
+energy_df = import_data("Resources/energy_dataset.csv")
+
+# Preprocessing
+print("Find all Unique city Names") 
+weather_df["city_name"].unique()
 print("\n")
-print("Energy Table Columns")
-for column in energy_clean_df.columns:
-    print ([column, energy_clean_df[column].isnull().sum()])
 
+# Weather Frames - Isolate the dataframes by city_name
+Madrid_df = create_city(weather_df, "Madrid")
+Barcelona_df = create_city(weather_df, "Barcelona")
+Valencia_df = create_city(weather_df, "Valencia")
+Seville_df = create_city(weather_df, "Seville")
+Bilbao_df = create_city(weather_df, "Bilbao")
 
-# Initial Code testing to be done with Madrid DF
-print("\n")
-print("Madrid Weather eolumns")
-for column in Madrid_df.columns:
-    print ([column, Madrid_df[column].isnull().sum()])
+df_list = [weather_df, Madrid_df, Barcelona_df, Valencia_df, Seville_df, Bilbao_df]
+
+# Energy Frames
+energy_clean_df = clean_energy_table(energy_df)
+
+# Ensure all tables have clean columns
+check_column(energy_clean_df, "Energy Table")
+check_column(weather_df, "Weather Table")
+
 
 ## Prep Tables for Processing
 # Prep Weather Table for Merge
