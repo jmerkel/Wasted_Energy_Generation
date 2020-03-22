@@ -1,6 +1,7 @@
 # Import Libraries
 import pandas as pd
 pd.set_option('display.max_columns', None)
+
 import sqlite3
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -8,8 +9,13 @@ from sqlalchemy.orm import session
 from sqlalchemy import create_engine, func
 import plotly.express as px
 import hvplot.pandas
-from sklearn.cluster import KMeans
+#from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.svm import SVC
 
 
 def import_data(path):
@@ -61,75 +67,77 @@ def merge_tables(city_df, energy_df):
 def write_SQL (engine, conn, df, df_name):
     df.to_sql(df_name, conn, if_exists='replace', index=False)
       
-# Import Data
-weather_df = import_data("Resources/weather_features.csv")
-energy_df = import_data("Resources/energy_dataset.csv")
+def temp ():
 
-# Preprocessing
-print("Find all Unique city Names") 
-print(weather_df["city_name"].unique())
-print("\n")
+    # Import Data
+    weather_df = import_data("Resources/weather_features.csv")
+    energy_df = import_data("Resources/energy_dataset.csv")
 
-## Barcelona has a space in front of the string
-weather_df["city_name"] = weather_df["city_name"].str.strip() #Remove leading & trailing spaces
+    # Preprocessing
+    print("Find all Unique city Names") 
+    print(weather_df["city_name"].unique())
+    print("\n")
 
-# Weather Frames - Isolate the dataframes by city_name
-Madrid_df = create_city(weather_df, "Madrid")
-Barcelona_df = create_city(weather_df, "Barcelona")
-Valencia_df = create_city(weather_df, "Valencia")
-Seville_df = create_city(weather_df, "Seville")
-Bilbao_df = create_city(weather_df, "Bilbao")
+    ## Barcelona has a space in front of the string
+    weather_df["city_name"] = weather_df["city_name"].str.strip() #Remove leading & trailing spaces
 
-print("Find all Unique city Names-Fix") 
-print(weather_df["city_name"].unique())
-print("\n")
+    # Weather Frames - Isolate the dataframes by city_name
+    Madrid_df = create_city(weather_df, "Madrid")
+    Barcelona_df = create_city(weather_df, "Barcelona")
+    Valencia_df = create_city(weather_df, "Valencia")
+    Seville_df = create_city(weather_df, "Seville")
+    Bilbao_df = create_city(weather_df, "Bilbao")
 
-print(Barcelona_df.head())
-# Energy Frames
-energy_clean_df = clean_energy_table(energy_df)
+    print("Find all Unique city Names-Fix") 
+    print(weather_df["city_name"].unique())
+    print("\n")
 
-# Ensure all tables have clean columns
-check_column(energy_clean_df, "Energy Table")
-check_column(weather_df, "Weather Table")
+    print(Barcelona_df.head())
+    # Energy Frames
+    energy_clean_df = clean_energy_table(energy_df)
 
-## Prep Tables for Processing
-# Prep Energy Table for Merge
-energy_forecast_df = energy_clean_df[[
-    "dt_iso", 
-    "forecast solar day ahead", 
-    "forecast wind onshore day ahead", 
-    "total load forecast",
-    "price day ahead",
-    "excessive waste"]].copy()
+    # Ensure all tables have clean columns
+    check_column(energy_clean_df, "Energy Table")
+    check_column(weather_df, "Weather Table")
 
-# Review Data Types 
-print("\nMadrid Data Types")
-print(Madrid_df.dtypes)
-print("\nEnergy Forecast Types")
-print(energy_forecast_df.dtypes)
+    ## Prep Tables for Processing
+    # Prep Energy Table for Merge
+    energy_forecast_df = energy_clean_df[[
+        "dt_iso", 
+        "forecast solar day ahead", 
+        "forecast wind onshore day ahead", 
+        "total load forecast",
+        "price day ahead",
+        "excessive waste"]].copy()
 
-# Merge city weather tables with energy tables
-Madrid_Weather_Data_df = merge_tables(Madrid_df, energy_forecast_df)
-Barcelona_Weather_Data_df = merge_tables(Barcelona_df, energy_forecast_df)
-Valencia_Weather_Data_df = merge_tables(Valencia_df, energy_forecast_df)
-Seville_Weather_Data_df = merge_tables(Seville_df, energy_forecast_df)
-Bilbao_Weather_Data_df = merge_tables(Bilbao_df, energy_forecast_df)
+    # Review Data Types 
+    print("\nMadrid Data Types")
+    print(Madrid_df.dtypes)
+    print("\nEnergy Forecast Types")
+    print(energy_forecast_df.dtypes)
 
-# Verify All columns are not objects
-print("\nColumn Types - Verification")
-print(Madrid_Weather_Data_df.dtypes)
+    # Merge city weather tables with energy tables
+    Madrid_Weather_Data_df = merge_tables(Madrid_df, energy_forecast_df)
+    Barcelona_Weather_Data_df = merge_tables(Barcelona_df, energy_forecast_df)
+    Valencia_Weather_Data_df = merge_tables(Valencia_df, energy_forecast_df)
+    Seville_Weather_Data_df = merge_tables(Seville_df, energy_forecast_df)
+    Bilbao_Weather_Data_df = merge_tables(Bilbao_df, energy_forecast_df)
+
+    # Verify All columns are not objects
+    print("\nColumn Types - Verification")
+    print(Madrid_Weather_Data_df.dtypes)
 
 
-#SQLAlchemy & SQLite
-## Write Data - SQLite
-engine = create_engine('sqlite:///Resources/energy_data.sqlite', echo=False)
-conn = sqlite3.connect('Resources/energy_data.sqlite')
+    #SQLAlchemy & SQLite
+    ## Write Data - SQLite
+    engine = create_engine('sqlite:///Resources/energy_data.sqlite', echo=False)
+    conn = sqlite3.connect('Resources/energy_data.sqlite')
 
-write_SQL(engine, conn, Madrid_Weather_Data_df, "forecast_Madrid")
-write_SQL(engine, conn, Barcelona_Weather_Data_df, "forecast_Barcelona")
-write_SQL(engine, conn, Valencia_Weather_Data_df, "forecast_Valencia")
-write_SQL(engine, conn, Seville_Weather_Data_df, "forecast_Seville")
-write_SQL(engine, conn, Bilbao_Weather_Data_df, "forecast_Bilbao")
+    write_SQL(engine, conn, Madrid_Weather_Data_df, "forecast_Madrid")
+    write_SQL(engine, conn, Barcelona_Weather_Data_df, "forecast_Barcelona")
+    write_SQL(engine, conn, Valencia_Weather_Data_df, "forecast_Valencia")
+    write_SQL(engine, conn, Seville_Weather_Data_df, "forecast_Seville")
+    write_SQL(engine, conn, Bilbao_Weather_Data_df, "forecast_Bilbao")
 
 
 #### READ SQLite DB ####
@@ -138,6 +146,11 @@ write_SQL(engine, conn, Bilbao_Weather_Data_df, "forecast_Bilbao")
 #Base.prepare(engine, reflect=True)
 #Base.classes.keys() # View Classes found by automap
 #session = Session(engine) # Allow query
+
+#SQLAlchemy & SQLite
+## Write Data - SQLite
+engine = create_engine('sqlite:///Resources/energy_data.sqlite', echo=False)
+conn = sqlite3.connect('Resources/energy_data.sqlite')
 
 Madrid_df = pd.read_sql('select * from forecast_Madrid', conn)
 Barcelona_df = pd.read_sql('select * from forecast_Barcelona', conn)
@@ -149,6 +162,98 @@ print("Read DataFrame")
 print(Madrid_df.head())
 
 # Machine Learning Portion - Supervised Learning
+### Logistic Regression
+## 17.3.1 - 17.3.3 for code (17.3.2)
+## Madrid = Train
+## 17.4.1 - Accuracy, Precision, Sensitivity
+## 17.4.2 - Confusion Matrix
+
+### Support Vector Machine (SVM)
+## 17.5.2 - SVM
+
+## 17.6.4 - Scale & Normalize Data
+## 17.7.2 - Decision Tree
+
+
+### Logistic Regression
+y = Madrid_df["excessive waste"]
+X = Madrid_df.drop(columns="excessive waste")
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, stratify=y)
+
+scaler = StandardScaler()
+# Fitting the Standard Scaler with the training data.
+X_scaler = scaler.fit(X_train)
+# Scaling the data.
+X_train_scaled = X_scaler.transform(X_train)
+X_test_scaled = X_scaler.transform(X_test)
+
+print ("X_Train Shape")
+print(X_train.shape)
+classifier = LogisticRegression(solver='lbfgs', max_iter=200,random_state=1)
+classifier.fit (X_train_scaled, y_train)
+
+print("Make Predictions")
+y_pred = classifier.predict(X_test_scaled)
+results = pd.DataFrame({
+    "Prediction": y_pred, 
+    "Actual": y_test}).reset_index(drop=True)
+
+print ("Logistic Regression")
+print(results.head(20))
+print(accuracy_score(y_test, y_pred))
+
+matrix = confusion_matrix(y_test, y_pred)
+print(matrix)
+#Classification Report - Provides precision, recall, F1 score
+report = classification_report(y_test, y_pred)
+print(report)
+
+### SVM
+# Instantiate a linear SVM model
+print("Linear SVM")
+model = SVC(kernel='linear') #Is the orientation of the hyperplane linear or non linear?
+model.fit(X_train_scaled, y_train)
+y_pred = model.predict(X_test_scaled)
+results = pd.DataFrame({    
+    "Prediction": y_pred, 
+    "Actual": y_test
+}).reset_index(drop=True)
+print("\nSVM LINEAR")
+print(results.head())
+print(accuracy_score(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+
+# Instantiate a poly SVM model
+print("Poly SVM")
+model = SVC(kernel='poly') #Is the orientation of the hyperplane linear or non linear?
+model.fit(X_train_scaled, y_train)
+y_pred = model.predict(X_test_scaled)
+results = pd.DataFrame({    
+    "Prediction": y_pred, 
+    "Actual": y_test
+}).reset_index(drop=True)
+print("\nSVM POLY")
+print(results.head())
+print(accuracy_score(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+
+# Instantiate a rbf SVM model
+print("RBF SVM")
+model = SVC(kernel='rbf') #Is the orientation of the hyperplane linear or non linear?
+model.fit(X_train_scaled, y_train)
+y_pred = model.predict(X_test_scaled)
+results = pd.DataFrame({    
+    "Prediction": y_pred, 
+    "Actual": y_test
+}).reset_index(drop=True)
+print("\nSVM RBF")
+print(results.head())
+print(accuracy_score(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
 
 #def remove() :
     #import datetime as dt
