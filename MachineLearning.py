@@ -67,7 +67,7 @@ def merge_tables(city_df, energy_df):
 def write_SQL (engine, conn, df, df_name):
     df.to_sql(df_name, conn, if_exists='replace', index=False)
       
-def temp ():
+def preprocessing ():
 
     # Import Data
     weather_df = import_data("Resources/weather_features.csv")
@@ -174,8 +174,6 @@ print(Madrid_df.head())
 ## 17.6.4 - Scale & Normalize Data
 ## 17.7.2 - Decision Tree
 
-
-### Logistic Regression
 y = Madrid_df["excessive waste"]
 X = Madrid_df.drop(columns="excessive waste")
 
@@ -188,6 +186,7 @@ X_scaler = scaler.fit(X_train)
 X_train_scaled = X_scaler.transform(X_train)
 X_test_scaled = X_scaler.transform(X_test)
 
+print ("Logistic Regression")
 print ("X_Train Shape")
 print(X_train.shape)
 classifier = LogisticRegression(solver='lbfgs', max_iter=200,random_state=1)
@@ -220,7 +219,7 @@ results = pd.DataFrame({
     "Actual": y_test
 }).reset_index(drop=True)
 print("\nSVM LINEAR")
-print(results.head())
+print(results.head(20))
 print(accuracy_score(y_test, y_pred))
 print(confusion_matrix(y_test, y_pred))
 print(classification_report(y_test, y_pred))
@@ -234,8 +233,7 @@ results = pd.DataFrame({
     "Prediction": y_pred, 
     "Actual": y_test
 }).reset_index(drop=True)
-print("\nSVM POLY")
-print(results.head())
+print(results.head(20))
 print(accuracy_score(y_test, y_pred))
 print(confusion_matrix(y_test, y_pred))
 print(classification_report(y_test, y_pred))
@@ -249,11 +247,40 @@ results = pd.DataFrame({
     "Prediction": y_pred, 
     "Actual": y_test
 }).reset_index(drop=True)
-print("\nSVM RBF")
 print(results.head())
 print(accuracy_score(y_test, y_pred))
 print(confusion_matrix(y_test, y_pred))
 print(classification_report(y_test, y_pred))
+
+# complete test
+y = Madrid_df["excessive waste"]
+X = Madrid_df.drop(columns="excessive waste")
+
+y_test = Barcelona_df["excessive waste"]
+X_test = Barcelona_df.drop(columns="excessive waste")
+
+#X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, stratify=y)
+
+scaler = StandardScaler()
+# Fitting the Standard Scaler with the training data.
+X_scaler = scaler.fit(X)
+# Scaling the data.
+X_scaled = X_scaler.transform(X)
+X_test_scaled = X_scaler.transform(X_test)
+
+print("RBF SVM - Complete Test - Madrid vs Barcelona")
+model = SVC(kernel='rbf') #Is the orientation of the hyperplane linear or non linear?
+model.fit(X_scaled, y)
+y_pred = model.predict(X_test_scaled)
+results = pd.DataFrame({    
+    "Prediction": y_pred, 
+    "Actual": y_test
+}).reset_index(drop=True)
+print(results.head(20))
+print(accuracy_score(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+
 
 #def remove() :
     #import datetime as dt
