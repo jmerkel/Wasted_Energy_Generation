@@ -9,13 +9,16 @@ from sqlalchemy.orm import session
 from sqlalchemy import create_engine, func
 import plotly.express as px
 import hvplot.pandas
-#from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.svm import SVC
+
+import matplotlib.pyplot as plt
+#import pandas as pd
+from pandas.plotting import table 
 
 
 def import_data(path):
@@ -68,7 +71,6 @@ def write_SQL (engine, conn, df, df_name):
     df.to_sql(df_name, conn, if_exists='replace', index=False)
       
 def preprocessing ():
-
     # Import Data
     weather_df = import_data("Resources/weather_features.csv")
     energy_df = import_data("Resources/energy_dataset.csv")
@@ -139,148 +141,174 @@ def preprocessing ():
     write_SQL(engine, conn, Seville_Weather_Data_df, "forecast_Seville")
     write_SQL(engine, conn, Bilbao_Weather_Data_df, "forecast_Bilbao")
 
+def model_test(df, df2):
+    # Machine Learning Portion - Supervised Learning
+    ### Logistic Regression
+    ## 17.3.1 - 17.3.3 for code (17.3.2)
+    ## Madrid = Train
+    ## 17.4.1 - Accuracy, Precision, Sensitivity
+    ## 17.4.2 - Confusion Matrix
 
-#### READ SQLite DB ####
-#Base = automap_base()
-#engine = create_engine("sqlite:///energy.sqlite")
-#Base.prepare(engine, reflect=True)
-#Base.classes.keys() # View Classes found by automap
-#session = Session(engine) # Allow query
+    ### Support Vector Machine (SVM)
+    ## 17.5.2 - SVM
 
-#SQLAlchemy & SQLite
-## Write Data - SQLite
-engine = create_engine('sqlite:///Resources/energy_data.sqlite', echo=False)
-conn = sqlite3.connect('Resources/energy_data.sqlite')
+    ## 17.6.4 - Scale & Normalize Data
+    ## 17.7.2 - Decision Tree
 
-Madrid_df = pd.read_sql('select * from forecast_Madrid', conn)
-Barcelona_df = pd.read_sql('select * from forecast_Barcelona', conn)
-Valencia_df = pd.read_sql('select * from forecast_Valencia', conn)
-Seville_df = pd.read_sql('select * from forecast_Seville', conn)
-Bilbao_df = pd.read_sql('select * from forecast_Bilbao', conn)
+    y = df["excessive waste"]
+    X = df.drop(columns="excessive waste")
 
-print("Read DataFrame")
-print(Madrid_df.head())
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, stratify=y)
 
-# Machine Learning Portion - Supervised Learning
-### Logistic Regression
-## 17.3.1 - 17.3.3 for code (17.3.2)
-## Madrid = Train
-## 17.4.1 - Accuracy, Precision, Sensitivity
-## 17.4.2 - Confusion Matrix
+    #Scale Data
+    scaler = StandardScaler()
+    # Fitting the Standard Scaler with the training data.
+    X_scaler = scaler.fit(X_train)
+    # Scaling the data.
+    X_train_scaled = X_scaler.transform(X_train)
+    X_test_scaled = X_scaler.transform(X_test)
 
-### Support Vector Machine (SVM)
-## 17.5.2 - SVM
+    #Logistic Regression
+    print ("Logistic Regression")
+    print ("X_Train Shape")
+    print(X_train.shape)
+    classifier = LogisticRegression(solver='lbfgs', max_iter=200,random_state=1)
+    classifier.fit (X_train_scaled, y_train)
 
-## 17.6.4 - Scale & Normalize Data
-## 17.7.2 - Decision Tree
+    print("Make Predictions")
+    y_pred = classifier.predict(X_test_scaled)
+    results = pd.DataFrame({
+        "Prediction": y_pred, 
+        "Actual": y_test}).reset_index(drop=True)
 
-y = Madrid_df["excessive waste"]
-X = Madrid_df.drop(columns="excessive waste")
+    print ("Logistic Regression")
+    print(results.head(20))
+    print(accuracy_score(y_test, y_pred))
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, stratify=y)
+    matrix = confusion_matrix(y_test, y_pred)
+    print(matrix)
+    #Classification Report - Provides precision, recall, F1 score
+    report = classification_report(y_test, y_pred)
+    print(report)
 
-scaler = StandardScaler()
-# Fitting the Standard Scaler with the training data.
-X_scaler = scaler.fit(X_train)
-# Scaling the data.
-X_train_scaled = X_scaler.transform(X_train)
-X_test_scaled = X_scaler.transform(X_test)
+    ### SVM
+    # Instantiate a linear SVM model
+    print("Linear SVM")
+    model = SVC(kernel='linear') #Is the orientation of the hyperplane linear or non linear?
+    model.fit(X_train_scaled, y_train)
+    y_pred = model.predict(X_test_scaled)
+    results = pd.DataFrame({    
+        "Prediction": y_pred, 
+        "Actual": y_test
+    }).reset_index(drop=True)
+    print("\nSVM LINEAR")
+    print(results.head(20))
+    print(accuracy_score(y_test, y_pred))
+    print(confusion_matrix(y_test, y_pred))
+    print(classification_report(y_test, y_pred))
 
-print ("Logistic Regression")
-print ("X_Train Shape")
-print(X_train.shape)
-classifier = LogisticRegression(solver='lbfgs', max_iter=200,random_state=1)
-classifier.fit (X_train_scaled, y_train)
+    # Instantiate a poly SVM model
+    print("Poly SVM")
+    model = SVC(kernel='poly') #Is the orientation of the hyperplane linear or non linear?
+    model.fit(X_train_scaled, y_train)
+    y_pred = model.predict(X_test_scaled)
+    results = pd.DataFrame({    
+        "Prediction": y_pred, 
+        "Actual": y_test
+    }).reset_index(drop=True)
+    print(results.head(20))
+    print(accuracy_score(y_test, y_pred))
+    print(confusion_matrix(y_test, y_pred))
+    print(classification_report(y_test, y_pred))
 
-print("Make Predictions")
-y_pred = classifier.predict(X_test_scaled)
-results = pd.DataFrame({
-    "Prediction": y_pred, 
-    "Actual": y_test}).reset_index(drop=True)
+    # Instantiate a rbf SVM model
+    print("RBF SVM")
+    model = SVC(kernel='rbf') #Is the orientation of the hyperplane linear or non linear?
+    model.fit(X_train_scaled, y_train)
+    y_pred = model.predict(X_test_scaled)
+    results = pd.DataFrame({    
+        "Prediction": y_pred, 
+        "Actual": y_test
+    }).reset_index(drop=True)
+    print(results.head())
+    print(accuracy_score(y_test, y_pred))
+    print(confusion_matrix(y_test, y_pred))
+    print(classification_report(y_test, y_pred))
 
-print ("Logistic Regression")
-print(results.head(20))
-print(accuracy_score(y_test, y_pred))
+    # complete test
+    y = df["excessive waste"]
+    X = df.drop(columns="excessive waste")
 
-matrix = confusion_matrix(y_test, y_pred)
-print(matrix)
-#Classification Report - Provides precision, recall, F1 score
-report = classification_report(y_test, y_pred)
-print(report)
+    y_test = df2["excessive waste"]
+    X_test = df2.drop(columns="excessive waste")
 
-### SVM
-# Instantiate a linear SVM model
-print("Linear SVM")
-model = SVC(kernel='linear') #Is the orientation of the hyperplane linear or non linear?
-model.fit(X_train_scaled, y_train)
-y_pred = model.predict(X_test_scaled)
-results = pd.DataFrame({    
-    "Prediction": y_pred, 
-    "Actual": y_test
-}).reset_index(drop=True)
-print("\nSVM LINEAR")
-print(results.head(20))
-print(accuracy_score(y_test, y_pred))
-print(confusion_matrix(y_test, y_pred))
-print(classification_report(y_test, y_pred))
+    #X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, stratify=y)
 
-# Instantiate a poly SVM model
-print("Poly SVM")
-model = SVC(kernel='poly') #Is the orientation of the hyperplane linear or non linear?
-model.fit(X_train_scaled, y_train)
-y_pred = model.predict(X_test_scaled)
-results = pd.DataFrame({    
-    "Prediction": y_pred, 
-    "Actual": y_test
-}).reset_index(drop=True)
-print(results.head(20))
-print(accuracy_score(y_test, y_pred))
-print(confusion_matrix(y_test, y_pred))
-print(classification_report(y_test, y_pred))
+    scaler = StandardScaler()
+    # Fitting the Standard Scaler with the training data.
+    X_scaler = scaler.fit(X)
+    # Scaling the data.
+    X_scaled = X_scaler.transform(X)
+    X_test_scaled = X_scaler.transform(X_test)
 
-# Instantiate a rbf SVM model
-print("RBF SVM")
-model = SVC(kernel='rbf') #Is the orientation of the hyperplane linear or non linear?
-model.fit(X_train_scaled, y_train)
-y_pred = model.predict(X_test_scaled)
-results = pd.DataFrame({    
-    "Prediction": y_pred, 
-    "Actual": y_test
-}).reset_index(drop=True)
-print(results.head())
-print(accuracy_score(y_test, y_pred))
-print(confusion_matrix(y_test, y_pred))
-print(classification_report(y_test, y_pred))
+    print("RBF SVM - Complete Test - Madrid vs Barcelona")
+    model = SVC(kernel='rbf') #Is the orientation of the hyperplane linear or non linear?
+    model.fit(X_scaled, y)
+    y_pred = model.predict(X_test_scaled)
+    results = pd.DataFrame({    
+        "Prediction": y_pred, 
+        "Actual": y_test
+    }).reset_index(drop=True)
+    print(results.head(20))
+    print(accuracy_score(y_test, y_pred))
+    print(confusion_matrix(y_test, y_pred))
+    print(classification_report(y_test, y_pred))
 
-# complete test
-y = Madrid_df["excessive waste"]
-X = Madrid_df.drop(columns="excessive waste")
+def city_compare(df, df2, df2_name):
+    #Training Set
+    y = df["excessive waste"] 
+    X = df.drop(columns="excessive waste")
 
-y_test = Barcelona_df["excessive waste"]
-X_test = Barcelona_df.drop(columns="excessive waste")
+    #Test Set
+    y_test = df2["excessive waste"]
+    X_test = df2.drop(columns="excessive waste")
 
-#X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, stratify=y)
+    # Fitting the Standard Scaler with the training data.
+    scaler = StandardScaler()
+    X_scaler = scaler.fit(X)
+    # Fitting the Standard Scaler with the training data.
+    X_scaled = X_scaler.transform(X)
+    X_test_scaled = X_scaler.transform(X_test)
 
-scaler = StandardScaler()
-# Fitting the Standard Scaler with the training data.
-X_scaler = scaler.fit(X)
-# Scaling the data.
-X_scaled = X_scaler.transform(X)
-X_test_scaled = X_scaler.transform(X_test)
+    print("RBF SVM - " + df2_name)
+    model = SVC(kernel='rbf') # Non Linear Hyperplane
+    model.fit(X_scaled, y)
+    y_pred = model.predict(X_test_scaled)
+    results = pd.DataFrame({    
+        "Prediction": y_pred, 
+        "Actual": y_test
+    }).reset_index(drop=True)
+    print("Prediction vs Actual Table")
+    print(results.head())
+    print("\nAccuracy Score: " + str(accuracy_score(y_test, y_pred)))
+    print("Confusion Matrix")
+    print(confusion_matrix(y_test, y_pred))
+    print("Classification Report")
+    print(classification_report(y_test, y_pred))
+    
+    report = classification_report(y_test, y_pred, output_dict=True)
+    out_df = pd.DataFrame(report).transpose()
+    print(out_df)
+    out_df.to_csv("Output/" + df2_name + ".csv", index=True)
+    
 
-print("RBF SVM - Complete Test - Madrid vs Barcelona")
-model = SVC(kernel='rbf') #Is the orientation of the hyperplane linear or non linear?
-model.fit(X_scaled, y)
-y_pred = model.predict(X_test_scaled)
-results = pd.DataFrame({    
-    "Prediction": y_pred, 
-    "Actual": y_test
-}).reset_index(drop=True)
-print(results.head(20))
-print(accuracy_score(y_test, y_pred))
-print(confusion_matrix(y_test, y_pred))
-print(classification_report(y_test, y_pred))
 
+    ax = plt.subplot(111, frame_on=False) # no visible frame
+    ax.xaxis.set_visible(False)  # hide the x axis
+    ax.yaxis.set_visible(False)  # hide the y axis
+
+    table(ax, out_df)  # where df is your data frame
+    plt.savefig("Output/" + df2_name + '.png')
 
 #def remove() :
     #import datetime as dt
@@ -356,3 +384,33 @@ print(classification_report(y_test, y_pred))
     #two_clusters.head()
     #
     #Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
+
+    #### READ SQLite DB ####
+    #Base = automap_base()
+    #engine = create_engine("sqlite:///energy.sqlite")
+    #Base.prepare(engine, reflect=True)
+    #Base.classes.keys() # View Classes found by automap
+    #session = Session(engine) # Allow query
+
+#SQLAlchemy & SQLite
+## Write Data - SQLite
+engine = create_engine('sqlite:///Resources/energy_data.sqlite', echo=False)
+conn = sqlite3.connect('Resources/energy_data.sqlite')
+
+Madrid_df = pd.read_sql('select * from forecast_Madrid', conn)
+Barcelona_df = pd.read_sql('select * from forecast_Barcelona', conn)
+#Valencia_df = pd.read_sql('select * from forecast_Valencia', conn)
+#Seville_df = pd.read_sql('select * from forecast_Seville', conn)
+#Bilbao_df = pd.read_sql('select * from forecast_Bilbao', conn)
+
+print("Read DataFrame")
+print(Madrid_df.head())
+
+#model_test(Madrid_df, Barcelona_df)
+
+# RBF - SVM Model fit best
+city_compare(Madrid_df, Barcelona_df, "Barcelona")
+#city_compare(Madrid_df, Valencia_df, "Valencia")
+#city_compare(Madrid_df, Seville_df, "Seville")
+#city_compare(Madrid_df, Bilbao_df, "Bilbao")
+#city_compare(Madrid_df, Madrid_df, "Madrid")
