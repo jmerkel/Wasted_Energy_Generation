@@ -16,10 +16,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.svm import SVC
 
-#import matplotlib.pyplot as plt
-#import pandas as pd
-#from pandas.plotting import table 
-
 
 def import_data(path):
     return pd.read_csv(path)
@@ -276,19 +272,12 @@ write_SQL(engine, conn, Valencia_Weather_Data_df, "forecast_Valencia")
 write_SQL(engine, conn, Seville_Weather_Data_df, "forecast_Seville")
 write_SQL(engine, conn, Bilbao_Weather_Data_df, "forecast_Bilbao")
 
-#SQLAlchemy & SQLite
-## Write Data - SQLite
-engine = create_engine('sqlite:///Resources/energy_data.sqlite', echo=False)
-conn = sqlite3.connect('Resources/energy_data.sqlite')
-
+## Read Data - SQLite
 Madrid_df = pd.read_sql('select * from forecast_Madrid', conn)
 Barcelona_df = pd.read_sql('select * from forecast_Barcelona', conn)
 Valencia_df = pd.read_sql('select * from forecast_Valencia', conn)
 Seville_df = pd.read_sql('select * from forecast_Seville', conn)
 Bilbao_df = pd.read_sql('select * from forecast_Bilbao', conn)
-
-print("Read DataFrame")
-print(Madrid_df.head())
 
 model_test(Madrid_df, Barcelona_df)
 
