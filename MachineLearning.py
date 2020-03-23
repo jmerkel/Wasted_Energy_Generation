@@ -204,6 +204,82 @@ def city_compare(df, df2, df2_name):
     out_df = pd.DataFrame(report).transpose()
     out_df.to_csv("Output/" + df2_name + ".csv", index=True)
 
+def remove() :
+    #import datetime as dt
+    #from datetime import timezone
+    
+    ### Madrid with only weather ###
+    #Madrid_Weather_Data_v2_df = Madrid_Weather_Data_df.drop([
+    #    "forecast solar day ahead",
+    #    "forecast wind onshore day ahead",
+    #    "total load forecast",
+    #    "price day ahead",
+    #    "weather_id"],1)
+    
+    
+    # Unsupervised Learning
+    ### Verify Excessive waste column is 0 or 1
+    #print("Excessive Waste Unique Values")
+    #print(Madrid_Weather_Data_df["excessive waste"].unique())
+    #
+    #model=KMeans(n_clusters=3,random_state=5)
+    #model.fit(Madrid_Weather_Data_df)
+    ## Check the relation between pressure, temperature by the class of excessive waste
+    #Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
+    #
+    ##The plot above tell people that the majority of the excessive waste happened when the pressure goes high. 
+    ##From that, we can probably had a clue this distribuction can lead to some clue. 
+    ##Let's try to run the K-means test with different clusters.
+    #
+    #def test_cluster_amount(df,clusters):
+    #    model=KMeans(n_clusters=clusters,random_state=5)
+    #    model
+    #    model.fit(df)
+    #    df["excessive waste"]=model.labels_
+    #
+    #def get_clusters(k,data):
+    #    model=KMeans(n_clusters=k,random_state=0)
+    #    model.fit(data)
+    #    predictions=model.predict(data)
+    #    data["excessive waste"]=model.labels_
+    #    return data
+    #
+    ## only 1 cluster
+    #Madrid_Weather_Data_df.hvplot.scatter(x="temp",y="pressure")
+    #
+    ##K-Means prediction of 2 clusters
+    #test_cluster_amount(Madrid_Weather_Data_df,2)
+    #Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
+    #
+    ##test_cluster_amount(Madrid_Weather_Data_df,3)
+    ##Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
+    #
+    ### This plot does not tell anythings, still needs to optimize
+    #fig=px.scatter_3d(Madrid_Weather_Data_df,
+    #                 x="temp",
+    #                 y="pressure",
+    #                 z="humidity",
+    #                  color="excessive waste",
+    #                  symbol="excessive waste",
+    #                  size="temp",
+    #                  width=800,
+    #                  )
+    #fig.update_layout(legend=dict(x=0,y=1))
+    #fig.show()
+    #
+    #inertia=[]
+    #k=list(range(1,11))
+    #for i in k:
+    #    km=KMeans(n_clusters=i,random_state=0)
+    #    km.fit(Madrid_Weather_Data_df)
+    #inertia.append(km.inertia_)
+    #
+    #two_clusters=get_clusters(2,Madrid_Weather_Data_df)
+    #two_clusters.head()
+    #
+    #Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
+    print("use for picture creation")
+
 
 ### MAIN ####
 # Import Data
@@ -287,3 +363,4 @@ city_compare(Madrid_df, Valencia_df, "Valencia")
 city_compare(Madrid_df, Seville_df, "Seville")
 city_compare(Madrid_df, Bilbao_df, "Bilbao")
 city_compare(Madrid_df, Madrid_df, "Madrid")
+
