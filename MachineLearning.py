@@ -340,3 +340,4 @@ city_compare(Madrid_df, Bilbao_df, "Bilbao")
 city_compare(Madrid_df, Madrid_df, "Madrid")
 
 sql_join(engine)
+generate_Pics(Madrid_df)
