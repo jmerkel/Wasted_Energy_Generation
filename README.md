@@ -5,7 +5,9 @@ Use Machine Learning to predict energy generation &amp; energy wasted
 [Presentation](https://docs.google.com/presentation/d/1yfZyfvpHZm6fd5A6OndYg5I7bu-Obim3QkOrRmsWnZM/edit?usp=sharing)
 
 ## Dashboard
+### UPDATE
 [Presentation](https://docs.google.com/presentation/d/1yfZyfvpHZm6fd5A6OndYg5I7bu-Obim3QkOrRmsWnZM/edit?usp=sharing)
+### UPDATE
 
 
 ### Topic
@@ -36,9 +38,7 @@ Initial data exploration was to use Excel and Python. Excel was used to review a
 ### Description of Analysis Phase
 For additional information, refer to the Machine Learning section of this ReadMe.
 
-After data cleaning, we tested a few different classification models to determine to most appropriate. Judging from the accuracy score and other metrics, the SVM RBF narrowly beat out the other models types.
-
-Using this model, we used one city as the "training" set, and the other cities as the testing set.
+After data cleaning, we did two steps: determined which model worked best, then used that model (SVM-RBF) to test each city. For the actual production tests, we used one city as the Training set, and the other cities as the testing set.
 
 
 ### Technologies, languages, tools
@@ -64,7 +64,9 @@ The model also was less accurate when used for Bilbao.
 
 
 ### Done Differently
-- Consider utilizing a user interface
+- Visualize some of the data earlier in the process
+- Reduce the amount of features involved in the Machine Learning Model
+- Consider utilizing a user interface for coding (to skip certain portions of the program if data already stored)
 - Splitting the cleaning and Machine Learning components into completely separate scripts
 - Utilize SQLite more
 - Not be disrupted by Corona Virus
@@ -76,6 +78,7 @@ The model also was less accurate when used for Bilbao.
 - Clean data sets
 - Identify wasted rows (1 or 0)
 - Merge data sets into City - Weather/Energy tables
+- Scale Data
 - Store data in SQlite
 - Identify Machine Learning Model to use
 - Use Machine Learning Model to make predictions for each city
@@ -96,15 +99,17 @@ For the model, we selected all numerical weather features as well as the date-ti
 
 These items were picked because they are numerical and forecasts. By selecting these features, we can have users create data tables with forecasted weather/data and be able to input this information into the model.
 
+Upon review, a smaller amount of features could have been used.
+
 
 ### Description of how data was split into training and testing sets
-To test model types, data from one city (Madrid) was split into train & test sets. After the model was
+To test model types, data from one city (Madrid) was split into train & test sets. After the model was selected, Madrid was used to train the model, and the other cities were used as the test set. Finally, Madrid was tested against itself
 
 ### Explanation of model choice w/ Limitations/Benefits
-SVM - RBF
-Benefits: The model is simple & easy to understand. The model can be quickly used and implemented to help identify wasted energy situations.
+SVM - RBF (Radial Bias Function)
+Benefits: Out of the models tested, this had the highest metrics. Additionally, it is simple to understand the concept behind it.
 
-Limitations:  
+Limitations: Potential to overfit
 
 ### Description and explanation of models confusion matrix including accuracy score
 Model - SVM RBF: Creating a hyperplane between the types. RBF is the type of hyperplane kernal used. Unlike Linear or Poly, RBF can be multiple individual areas
@@ -120,7 +125,7 @@ Classification Report:
 Our model had Accuracy scores in ~75%, with a high F1 score and very high Recall scores for non-wasted energy situations, but low F1 score and very low recall scores for wasted energy situations.
 
 ### Addressed the question or problem the team is solving?
-Our model was somewhat successful in identifying wasted energy situations. Though not highly accurate, it was "safe" in not identifying lower margin situations.
+Our model was not particularly successful in identifying wasted energy situations. Though not highly accurate, it was "safe" in not identifying lower margin situations. This could be of some use as energy companies cannot be in the situation where they do not meet demand.
 
 
 ### Statistical Analysis for next phase of project?

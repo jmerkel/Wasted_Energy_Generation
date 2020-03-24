@@ -5,8 +5,11 @@ pd.set_option('display.max_columns', None)
 import sqlite3
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import session
+from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
+from sqlalchemy.types import Integer, Text, String, DateTime, Float
+from sqlalchemy import join
+from sqlalchemy.sql import select
 import plotly.express as px
 import hvplot.pandas
 from sklearn.preprocessing import StandardScaler
@@ -64,7 +67,43 @@ def merge_tables(city_df, energy_df):
     return City_Weather_Data_df
 
 def write_SQL (engine, conn, df, df_name):
-    df.to_sql(df_name, conn, if_exists='replace', index=False)
+    new_columns = [column.replace(' ', '_').lower() for column in df]
+    df.columns = new_columns
+    df.to_sql(df_name,
+                con=engine, 
+                if_exists='replace',
+                #index = False, 
+                dtype={"dt_iso": Float(),
+                    "temp": Float(),
+                    "temp_min": Float(),
+                    "temp_max": Float(),
+                    "pressure": Integer(),
+                    "humidity": Integer(), 
+                    "wind_speed": Integer(),
+                    "wind_deg": Integer(),
+                    "rain_1h": Float(),
+                    "rain_3h": Float(),
+                    "snow_3h": Float(),
+                    "clouds_all": Integer(),
+                    "weather_id": Integer(),
+                    "forecast_solar_day_ahead": Float(),
+                    "forecast_wind_onshore_day_ahead": Float(),
+                    "total_load_forecast": Float(),
+                    "price_day_ahead": Float(),
+                    "excessive_waste": Integer()})
+
+    #df.to_sql(df_name, conn, if_exists='replace', index=False)
+
+def sql_join(engine):
+    ### SQLite Join Function
+    Base = automap_base()
+    Base.prepare(engine, reflect=True)
+    print(Base.classes.keys()) # No Data? -- No primary Key
+    Forecast_Madrid = Base.classes.forecast_Madrid
+    Forecast_Barcelona = Base.classes.forecast_Barcelona
+    session = Sesion(engine)
+
+    #result = session.query(Forecast_Madrid).join(Forecast_Barcelona).all() # Join all items
 
 def model_output(results, y_test, y_pred):
     print(results.head())
@@ -89,8 +128,8 @@ def model_test(df, df2):
     ## 17.6.4 - Scale & Normalize Data
     ## 17.7.2 - Decision Tree
 
-    y = df["excessive waste"]
-    X = df.drop(columns="excessive waste")
+    y = df["excessive_waste"]
+    X = df.drop(columns="excessive_waste")
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1, stratify=y)
 
@@ -150,10 +189,10 @@ def model_test(df, df2):
     model_output(results, y_test, y_pred)
 
     ### Production Test
-    y = df["excessive waste"]
-    X = df.drop(columns="excessive waste")
-    y_test = df2["excessive waste"]
-    X_test = df2.drop(columns="excessive waste")
+    y = df["excessive_waste"]
+    X = df.drop(columns="excessive_waste")
+    y_test = df2["excessive_waste"]
+    X_test = df2.drop(columns="excessive_waste")
 
     scaler = StandardScaler()
     # Fitting the Standard Scaler with the training data.
@@ -174,12 +213,12 @@ def model_test(df, df2):
 
 def city_compare(df, df2, df2_name):
     #Training Set
-    y = df["excessive waste"] 
-    X = df.drop(columns="excessive waste")
+    y = df["excessive_waste"] 
+    X = df.drop(columns="excessive_waste")
 
     #Test Set
-    y_test = df2["excessive waste"]
-    X_test = df2.drop(columns="excessive waste")
+    y_test = df2["excessive_waste"]
+    X_test = df2.drop(columns="excessive_waste")
 
     # Fitting the Standard Scaler with the training data.
     scaler = StandardScaler()
@@ -204,83 +243,19 @@ def city_compare(df, df2, df2_name):
     out_df = pd.DataFrame(report).transpose()
     out_df.to_csv("Output/" + df2_name + ".csv", index=True)
 
-def remove() :
-    #import datetime as dt
-    #from datetime import timezone
-    
-    ### Madrid with only weather ###
-    #Madrid_Weather_Data_v2_df = Madrid_Weather_Data_df.drop([
-    #    "forecast solar day ahead",
-    #    "forecast wind onshore day ahead",
-    #    "total load forecast",
-    #    "price day ahead",
-    #    "weather_id"],1)
-    
-    
-    # Unsupervised Learning
-    ### Verify Excessive waste column is 0 or 1
-    #print("Excessive Waste Unique Values")
-    #print(Madrid_Weather_Data_df["excessive waste"].unique())
-    #
-    #model=KMeans(n_clusters=3,random_state=5)
-    #model.fit(Madrid_Weather_Data_df)
-    ## Check the relation between pressure, temperature by the class of excessive waste
-    #Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
-    #
-    ##The plot above tell people that the majority of the excessive waste happened when the pressure goes high. 
-    ##From that, we can probably had a clue this distribuction can lead to some clue. 
-    ##Let's try to run the K-means test with different clusters.
-    #
-    #def test_cluster_amount(df,clusters):
-    #    model=KMeans(n_clusters=clusters,random_state=5)
-    #    model
-    #    model.fit(df)
-    #    df["excessive waste"]=model.labels_
-    #
-    #def get_clusters(k,data):
-    #    model=KMeans(n_clusters=k,random_state=0)
-    #    model.fit(data)
-    #    predictions=model.predict(data)
-    #    data["excessive waste"]=model.labels_
-    #    return data
-    #
-    ## only 1 cluster
-    #Madrid_Weather_Data_df.hvplot.scatter(x="temp",y="pressure")
-    #
-    ##K-Means prediction of 2 clusters
-    #test_cluster_amount(Madrid_Weather_Data_df,2)
-    #Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
-    #
-    ##test_cluster_amount(Madrid_Weather_Data_df,3)
-    ##Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
-    #
-    ### This plot does not tell anythings, still needs to optimize
-    #fig=px.scatter_3d(Madrid_Weather_Data_df,
-    #                 x="temp",
-    #                 y="pressure",
-    #                 z="humidity",
-    #                  color="excessive waste",
-    #                  symbol="excessive waste",
-    #                  size="temp",
-    #                  width=800,
-    #                  )
-    #fig.update_layout(legend=dict(x=0,y=1))
-    #fig.show()
-    #
-    #inertia=[]
-    #k=list(range(1,11))
-    #for i in k:
-    #    km=KMeans(n_clusters=i,random_state=0)
-    #    km.fit(Madrid_Weather_Data_df)
-    #inertia.append(km.inertia_)
-    #
-    #two_clusters=get_clusters(2,Madrid_Weather_Data_df)
-    #two_clusters.head()
-    #
-    #Madrid_Weather_Data_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
-    print("use for picture creation")
+def generate_Pics(df):
+    ### Generate Pic
+    # Scatter Plot
+    plot = Madrid_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
+    hvplot.show(plot)
 
+    plot = Madrid_df.hvplot.scatter("humidity",y="pressure",by="excessive waste")
+    hvplot.show(plot)
 
+    plot = Madrid_df.hvplot.scatter("wind_speed",y="wind_deg",by="excessive waste")
+    hvplot.show(plot)
+
+# def temp():
 ### MAIN ####
 # Import Data
 weather_df = import_data("Resources/weather_features.csv")
@@ -339,7 +314,7 @@ print(Madrid_Weather_Data_df.dtypes)
 
 #SQLAlchemy & SQLite
 ## Write Data - SQLite
-engine = create_engine('sqlite:///Resources/energy_data.sqlite', echo=False)
+engine = create_engine("sqlite:///Resources/energy_data.sqlite", echo=False)
 conn = sqlite3.connect('Resources/energy_data.sqlite')
 
 write_SQL(engine, conn, Madrid_Weather_Data_df, "forecast_Madrid")
@@ -364,3 +339,5 @@ city_compare(Madrid_df, Seville_df, "Seville")
 city_compare(Madrid_df, Bilbao_df, "Bilbao")
 city_compare(Madrid_df, Madrid_df, "Madrid")
 
+sql_join(engine)
+generate_Pics(Madrid_df)
