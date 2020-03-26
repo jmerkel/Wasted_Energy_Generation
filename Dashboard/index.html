@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <!-- Custom styles for this template -->
+    <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <link href="vendor/devicons/css/devicons.min.css" rel="stylesheet">
+    <link href="vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.0/themes/prism.min.css">
+     <!-- Custom styles for this template -->
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body id="page-top">
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+        <a class="navbar-brand js-scroll-trigger" href="#page-top">
+            <!-- <span class="d-block d-lg-none">Start Bootstrap</span> -->
+            <span class="d-none d-lg-block">
+                <img class="img-fluid img-profile mx-auto mb-2" src="img/logo.png" alt="tooth" height="42" width="42">
+            </span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link js-scroll-trigger" href="#problem">Background</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link js-scroll-trigger" href="#clean">Data Preprocessing</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link js-scroll-trigger" href="#forecast">Historical Data</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link js-scroll-trigger" href="#cluster">Logistic Regression and Machine Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link js-scroll-trigger" href="#dintel">Dashboard</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container-fluid p-0">
+        <!-- Title/Intro Section -->
+        <section class="resume-section p-3 p-lg-5 d-flex d-column" id="page-top">
+            <div class="my-auto">
+                <h1 class="pt-5">Wasted Energy Identification & Prediction</h1>
+                <div class="row">
+                    <div class="col-md-8">
+                        <h3 class="">Weather Pattern Prediction & Excessive Energy Saving</h3>
+                    </div>
+                    <div class="col-md-4">
+                        
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5 class="mb-3">Presentation:</h5>
+                        <ol>
+                            <li>Forecasting in Energy Market</li>
+                            <li>Data Acquisition & Preprocessing</li>
+                            <li>Historical Data</li>
+                            <li>Excessive Energy Prediction by Logistic Regression</li>
+                            <li>Future</li>
+                        </ol>
+                    </div>
+                    <div class="col-md-4">
+                        <img class="img-fluid rounded" src="img/energysource.png" alt="Energy image">
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        <!-- Forecasting in Energy Market-->
+        <section class="resume-section p-3 p-lg-5 d-flex flex-column" id="problem">
+            <div class="my-auto">
+                <h2 class="mb-5">Forecasting in Energy Market</h2>
+                <div class="resume-item d-flex flex-column flex-md-row mb-5">
+                    <div class="col-md-7">
+                        <div class="resume-content mr-auto">
+                            <p>Many industrial companies and regional Utilities are using Big Data tools (such as Historical Data Archives) to record and analyze equipment data. This is being done in an effort to optimize production, reduce maintenance time, cut unnecessary costs, and identify safety/pollution risks.</p>
+                            <p><div class="subheading pt-2 mb-1">Content:</div>
+                                <ul>
+                                    <li>This dataset contains 4 years of electrical consumption, generation, pricing, and weather data for Spain. Consumption and generation data was retrieved from ENTSOE a public portal for Transmission Service Operator (TSO) data. Settlement prices were obtained from the Spanish TSO Red Electric España. Weather data was purchased as part of a personal project from the Open Weather API for the 5 largest cities in Spain and made public here.</li>
+
+                                </ul>
+                            </p>
+                            <p><div class="subheading pt-2 mb-1">Project Goals:</div>
+                                <ul>
+                                    <li>Can we predict if certain weather patterns lead to an excessive amount of wasted energy?</li>
+                                    <li>Can we predict specific times or days that generate excessive amounts of energy?</li>
+                                </ul>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="resume-content mr-auto">
+                            <img class="img-fluid" src="img/spain.jpg" alt="picture of spain">
+                        </div>
+                        <div class="resume-content mr-auto">
+                            <img class="img-fluid pt-5" src="img/energy_fossil.jpg" alt="energy">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Preprocessing Section-->
+        <section class="resume-section p-3 p-lg-5 d-flex flex-column" id="clean">
+            <div class="my-auto">
+                <h2 class="mb-5">Data Preprocessing</h2>
+                <div class="resume-item d-flex flex-column flex-md-row mb-5">
+                    <div class="resume-content mr-auto">
+                        <h3 class="mb-3">Data Acquisition & Cleaning:</h3>
+                        <p><strong>Hourly energy demand generation and weather Dataset</strong> , Datasets obtained from kaggle. Both dataset is in csv format, one describe the weather of five largest cities in spain, the other provide the energy generation and consumption of spain; </p>
+                        <p>the energy dataset was retrieved from ENTSOE public portal and the weather data was from <a href="https://openweathermap.org/api" target="_blank">"The Open Weather API"</a>. </p>
+                    </div>
+                </div>
+                <div class="resume-item d-flex flex-column flex-md-row mb-5">
+                    <div class="col-md-3">
+                        <p class="resume-content mr-auto">
+                            <img class="img-fluid rounded" src="img/ETL.jpg" alt="ETL picture">
+                        </p>
+                        <p pt-3>The table has been process with these steps</p>
+                        <ol>
+                            <li>Remove Null & Empty Columns</li>
+                            <li>Remove Duplicates</li>
+                            <li>Removed / Transformed non-numerical data</li>
+                            <li>Cleaned strings → City Name values had a leading space </li>
+                           
+                        </ol>
+                        <p> Project Specific Preprocessing steps</p>
+                        <ol>
+                            <li>Adjusted DateTime</li>
+                            <li>Merge Energy/Weather Data Tables into Cities</li>
+                            <li>Save & Read to SQLite</li>
+                        </ol>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="resume-content mr-auto">
+                            <pre>
+                                <code>
+                                    ## Energy Frames
+                                    # Determine cutoff point for Excessive Wasted Energy
+                                    energy_df = energy_df[pd.notnull(energy_df["generation waste"])]
+                                    print(energy_df["generation waste"].describe()) 
+                                    
+                                    # Prep Dataframe - 310 MW is cutoff (Describe 75% showed 310 MW)
+                                    energy_df["excessive waste"] = energy_df["generation waste"].\
+                                        map(lambda x: 1 if x > 310.0 else 0)
+                                    
+                                    print("\nFind NaN energy items")
+                                    for column in energy_df.columns:
+                                        print ([column, energy_df[column].isnull().sum()])
+                                    
+                                    energy_clean_df = energy_df.drop(['generation hydro pumped storage aggregated', 'forecast wind offshore eday ahead'], 1)
+                                    energy_clean_df = energy_clean_df.dropna()
+                                    
+                                    print("\n")
+                                    print("Energy Table Columns")
+                                    for column in energy_clean_df.columns:
+                                        print ([column, energy_clean_df[column].isnull().sum()])
+                                    
+                                    
+                                    # Initial Code testing to be done with Madrid DF
+                                    print("\n")
+                                    print("Madrid Weather Tabl Columns")
+                                    for column in Madrid_df.columns:
+                                        print ([column, Madrid_df[column].isnull().sum()])
+                                    
+                                    ## Prep Tables for Processing
+                                    # Prep Weather Table for Merge
+                                    # Drop non needed columns (descriptions, weather Description (ID code remains), )
+                                    Madrid_Prep_df = Madrid_df.drop(["city_name", "weather_main", "weather_description", "weather_icon"], 1)
+                                    
+                                    # Prep Energy Table for Merge
+                                    energy_clean_df = energy_clean_df.rename(columns={"time": "dt_iso"})
+                                    energy_forecast_df = energy_clean_df[[
+                                        "dt_iso", 
+                                        "forecast solar day ahead", 
+                                        "forecast wind onshore day ahead", 
+                                        "total load forecast",
+                                        "price day ahead",
+                                        "excessive waste"]].copy()
+                                    
+                                    # Merge Madrid with weather & energy forecasts
+                                    print(Madrid_Prep_df.dtypes)
+                                    print()
+                                    print(energy_forecast_df.dtypes)
+                                    
+                                    # Inner Join
+                                    Madrid_Weather_Data_df = Madrid_Prep_df.merge(energy_forecast_df, on="dt_iso") 
+                                    Madrid_Weather_Data_df["dt_iso"] = pd.to_datetime(Madrid_Weather_Data_df["dt_iso"], utc=True, infer_datetime_format=True)
+                                    
+                                    print("\nColumn Types")
+                                    print(Madrid_Weather_Data_df.dtypes)
+                                    print("\nCheck Values")
+                                    print(Madrid_Weather_Data_df.head())
+                                    
+                                    
+                                    # Madrid with only weather
+                                    Madrid_Weather_Data_v2_df = Madrid_Weather_Data_df.drop([
+                                        "forecast solar day ahead",
+                                        "forecast wind onshore day ahead",
+                                        "total load forecast",
+                                        "price day ahead",
+                                        "weather_id"],1)
+                                    
+                                    #SQLAlchemy & SQLite
+                                    ## Write Data - SQLite
+                                    engine = create_engine('sqlite://', echo=False)
+                                    conn = sqlite3.connect('MadridWeatherDF.sqlite')
+                                    Madrid_Weather_Data_df.to_sql('energy_forecast', conn, if_exists='replace', index=False)
+                                    print(pd.read_sql('select * from energy_forecast', conn))
+                                    
+                                </code>
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="resume-item d-flex flex-column flex-md-row mb-5">
+                    <div class="resume-content mr-auto">
+                        <div><strong>The cleaned dataset has the weather features of Madrid with inner join from excessive energy column</strong></div>
+
+                    </div>
+                </div>
+            
+        </section>
+                <!-- Historical -->
+                <section class="resume-section p-3 p-lg-5 d-flex flex-column" id="forecast">
+                    <div class="my-auto">
+                        <h2 class="mb-5">Historical Data</h2>
+                        <p>Visualization of Temperature[2018] and the Energy Generation</p>
+                        <div class="resume-item d-flex flex-column flex-md-row mb-5">
+                            <div class="resume-content mr-auto">
+                                <h3 class="mb-3">Five Largest Cities(in Spain) Average Temperature </h3>
+                                <p>The Multiple line chart provide the information of average temperature of each month in 2018</p>
+                                <p>The average temperature is lower in Bilbao compares to other four cities
+                                    <ul>
+                                        <li>Possible reason of higher latitude compares to the rest of cities</li>
+            
+                                    </ul>
+                                </p>
+                                <p class="resume-content mr-auto">
+                                    <img class="img-fluid rounded" src="img/5Cities_2018.png" alt="seasonal-decompose charts">
+                                </p>
+                            </div>
+                        </div>
+                        <div class="resume-item d-flex flex-column flex-md-row mb-5">
+                            <div class="resume-content mr-auto">
+                                <h3 class="mb-3">Energy Generation through different sources</h3>
+                                <p>Using Multiple line plots to generate a figure with Energy generation through biomass and waste energy generation 
+        
+                                </p>
+                                <p>The Biomass energy generation has significantly drop after April of 2016. This provide some information about either policy change or demand change from spain
+                                    <img class="img-fluid rounded" src="img/biomassgeneration.png" alt="biomass">
+                                </p>
+                            </div>
+                        </div>
+                        <div class="resume-item d-flex flex-column flex-md-row mb-5">
+                            <div class="resume-content mr-auto">
+                                <h3 class="mb-3">Step 3: Build the model & Make predictions</h3>
+                                <p class="resume-content mr-auto">
+                                    <img class="img-fluid rounded" src="img/sarima.png" alt="sarima model">
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+    </div>
+</body>
+</html>
