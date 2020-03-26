@@ -92,7 +92,8 @@ def write_SQL (engine, conn, df, df_name):
                     "price_day_ahead": Float(),
                     "excessive_waste": Integer()})
 
-    #df.to_sql(df_name, conn, if_exists='replace', index=False)
+def write_SQL2(df, df_name, conn):
+    df.to_sql(df_name, conn, if_exists='replace', index=False)
 
 def sql_join(engine):
     ### SQLite Join Function
@@ -255,6 +256,22 @@ def generate_Pics(df):
     plot = Madrid_df.hvplot.scatter("wind_speed",y="wind_deg",by="excessive waste")
     hvplot.show(plot)
 
+def generate_sankey(df):
+    # print(df.head())
+    df.drop(["dt_iso",
+        "forecast solar day ahead", 
+        "forecast wind onshore day ahead", 
+        "total load forecast", 
+        "total load actual", 
+        "price day ahead", 
+        "price actual",
+        "excessive waste"], axis=1, inplace =True)
+    sumReport = df.sum(axis=0, skipna=True)
+    print("Energy Type - Sum")
+    print(sumReport)
+    out_df = pd.DataFrame(sumReport).transpose()
+    out_df.to_csv("Output/energySum.csv", index=True)
+
 # def temp():
 ### MAIN ####
 # Import Data
@@ -322,6 +339,7 @@ write_SQL(engine, conn, Barcelona_Weather_Data_df, "forecast_Barcelona")
 write_SQL(engine, conn, Valencia_Weather_Data_df, "forecast_Valencia")
 write_SQL(engine, conn, Seville_Weather_Data_df, "forecast_Seville")
 write_SQL(engine, conn, Bilbao_Weather_Data_df, "forecast_Bilbao")
+write_SQL2(energy_clean_df, "energy", conn)
 
 ## Read Data - SQLite
 Madrid_df = pd.read_sql('select * from forecast_Madrid', conn)
@@ -329,6 +347,7 @@ Barcelona_df = pd.read_sql('select * from forecast_Barcelona', conn)
 Valencia_df = pd.read_sql('select * from forecast_Valencia', conn)
 Seville_df = pd.read_sql('select * from forecast_Seville', conn)
 Bilbao_df = pd.read_sql('select * from forecast_Bilbao', conn)
+energy_df = pd.read_sql('select * from energy', conn)
 
 model_test(Madrid_df, Barcelona_df)
 
@@ -341,3 +360,4 @@ city_compare(Madrid_df, Madrid_df, "Madrid")
 
 sql_join(engine)
 generate_Pics(Madrid_df)
+generate_sankey(energy_df)
