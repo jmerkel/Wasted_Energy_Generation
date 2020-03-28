@@ -153,39 +153,14 @@
                         <div class="resume-content mr-auto">
                             <pre>
                                 <code>
-                                    ## Energy Frames
-                                    # Determine cutoff point for Excessive Wasted Energy
-                                    energy_df = energy_df[pd.notnull(energy_df["generation waste"])]
-                                    print(energy_df["generation waste"].describe()) 
+                                    #Create City 
+                                    Valencia_df=weather_df.loc[weather_df["city_name"]=="Valencia"]
+                                    Madrid_df=weather_df.loc[weather_df["city_name"]=="Madrid"]
+                                    Barcelona_df=weather_df.loc[weather_df["city_name"]==' Barcelona']
+                                    Seville_df=weather_df.loc[weather_df["city_name"]=='Seville']
+                                    Bilbao_df=weather_df.loc[weather_df["city_name"]=="Bilbao"]
                                     
-                                    # Prep Dataframe - 310 MW is cutoff (Describe 75% showed 310 MW)
-                                    energy_df["excessive waste"] = energy_df["generation waste"].\
-                                        map(lambda x: 1 if x > 310.0 else 0)
-                                    
-                                    print("\nFind NaN energy items")
-                                    for column in energy_df.columns:
-                                        print ([column, energy_df[column].isnull().sum()])
-                                    
-                                    energy_clean_df = energy_df.drop(['generation hydro pumped storage aggregated', 'forecast wind offshore eday ahead'], 1)
-                                    energy_clean_df = energy_clean_df.dropna()
-                                    
-                                    print("\n")
-                                    print("Energy Table Columns")
-                                    for column in energy_clean_df.columns:
-                                        print ([column, energy_clean_df[column].isnull().sum()])
-                                    
-                                    
-                                    # Initial Code testing to be done with Madrid DF
-                                    print("\n")
-                                    print("Madrid Weather Tabl Columns")
-                                    for column in Madrid_df.columns:
-                                        print ([column, Madrid_df[column].isnull().sum()])
-                                    
-                                    ## Prep Tables for Processing
-                                    # Prep Weather Table for Merge
-                                    # Drop non needed columns (descriptions, weather Description (ID code remains), )
                                     Madrid_Prep_df = Madrid_df.drop(["city_name", "weather_main", "weather_description", "weather_icon"], 1)
-                                    
                                     # Prep Energy Table for Merge
                                     energy_clean_df = energy_clean_df.rename(columns={"time": "dt_iso"})
                                     energy_forecast_df = energy_clean_df[[
@@ -195,36 +170,12 @@
                                         "total load forecast",
                                         "price day ahead",
                                         "excessive waste"]].copy()
-                                    
-                                    # Merge Madrid with weather & energy forecasts
-                                    print(Madrid_Prep_df.dtypes)
-                                    print()
-                                    print(energy_forecast_df.dtypes)
-                                    
-                                    # Inner Join
-                                    Madrid_Weather_Data_df = Madrid_Prep_df.merge(energy_forecast_df, on="dt_iso") 
-                                    Madrid_Weather_Data_df["dt_iso"] = pd.to_datetime(Madrid_Weather_Data_df["dt_iso"], utc=True, infer_datetime_format=True)
-                                    
-                                    print("\nColumn Types")
-                                    print(Madrid_Weather_Data_df.dtypes)
-                                    print("\nCheck Values")
-                                    print(Madrid_Weather_Data_df.head())
-                                    
-                                    
-                                    # Madrid with only weather
-                                    Madrid_Weather_Data_v2_df = Madrid_Weather_Data_df.drop([
-                                        "forecast solar day ahead",
-                                        "forecast wind onshore day ahead",
-                                        "total load forecast",
-                                        "price day ahead",
-                                        "weather_id"],1)
-                                    
-                                    #SQLAlchemy & SQLite
-                                    ## Write Data - SQLite
-                                    engine = create_engine('sqlite://', echo=False)
-                                    conn = sqlite3.connect('MadridWeatherDF.sqlite')
-                                    Madrid_Weather_Data_df.to_sql('energy_forecast', conn, if_exists='replace', index=False)
-                                    print(pd.read_sql('select * from energy_forecast', conn))
+                                    #check column function
+                                    def check_column(df, df_name):
+                                        print("\n" + df_name + " Column Null Values")
+                                        for column in df.columns:
+                                            print ([column, df[column].isnull().sum()])
+                                        print("\n")
                                     
                                 </code>
                             </pre>
@@ -270,16 +221,38 @@
                                 </p>
                             </div>
                         </div>
-                        <div class="resume-item d-flex flex-column flex-md-row mb-5">
-                            <div class="resume-content mr-auto">
-                                <h3 class="mb-3">Step 3: Build the model & Make predictions</h3>
-                                <p class="resume-content mr-auto">
-                                    <img class="img-fluid rounded" src="img/sarima.png" alt="sarima model">
-                                </p>
-                            </div>
-                        </div>
                     </div>
                 </section>
+                 <!-- Logistic Regression and Machine Learning-->
+        <section class="resume-section p-3 p-lg-5 d-flex flex-column" id="cluster">
+            <div class="my-auto">
+                <h2 class="mb-5">Logistic Regression and Machine Learning</h2>
+                <p>SVM-RBF(Radial Bias Function) model was use beacues of its has the highest matrics among the other models that we tested. </p>
+                <div class="resume-item d-flex flex-column flex-md-row mb-5">
+                    <div class="resume-content mr-auto">
+                        <h3 class="mb-3">Model-SVM RBF</h3>
+                        <p>Creating a hyperplane between the types. RBF is the type of hyperplane kernal used. Unlike Linear or Poly, RBF can be multiple individual areas Confusion Matrix: Accurate models would want values to be high in the True/True & False/False sections.</p>
+                        <p>The dataset from one city(Madrid) was split into train & test sets. After selecting the SVM model, Madrid was used to train the model, and the other cities were used as the test set. Finally, Madrid was tested against itself</p>
+                        <p class="resume-content mr-auto">
+                            <img class="img-fluid rounded" src="img/Spanish_energy.png" alt="Spanish energy plot">
+                        </p>
+                    </div>
+                </div> 
+                <div class="resume-item d-flex flex-column flex-md-row mb-5">
+                        <div class="resume-content mr-auto">
+                            <h3 class="mb-3">Result</h3>
+                            <p>Our model had some minor success in identifying situations where an excessive amount of energy is wasted. At very high percentages, it identified non-wasted situations correctly. However, it only picked up the wasted energy generation situations at rates of 10 - 20%.
+                                This is of some benefit, as the model is "safe". If it didn't have a high recall number for non-wasted energy situations, this model would not be used, as energy MUST be supplied adequately. Even with the low scores of the wasted energy identification, this model may be able to reduce high/cost equipment rates by 10%
+                                The model also was less accurate when used for Bilbao.
+                            <p class="resume-content mr-auto">
+                                <img class="img-fluid rounded" src="img/Machinelearning.png" alt="dendogram">
+                            </p>
+                        </div>
+                    </div>           
+
+            </div>
+
+    </section>
     </div>
 </body>
 </html>
