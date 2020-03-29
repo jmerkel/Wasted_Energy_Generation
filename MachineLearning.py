@@ -24,8 +24,8 @@ def import_data(path):
     return pd.read_csv(path)
 
 def create_city(weather_df, CityName):
-    df= weather_df.loc[weather_df["city_name"] == CityName]
     # Prep Weather Table for Merge
+    df= weather_df.loc[weather_df["city_name"] == CityName]
     # Drop non needed columns (descriptions, weather Description (ID code remains), )
     city_df = df.drop_duplicates(keep=False, inplace=False)
     city_df = city_df.drop(["city_name", "weather_main", "weather_description", "weather_icon"], 1)
@@ -55,18 +55,21 @@ def clean_energy_table(energy_df):
     return energy_clean_df
 
 def check_column(df, df_name):
+    # Verify Columns null values
     print("\n" + df_name + " Column Null Values")
     for column in df.columns:
         print ([column, df[column].isnull().sum()])
     print("\n")
 
 def merge_tables(city_df, energy_df):
+    # Merge Energy & Weather Tables on DateTime Column
     City_Weather_Data_df = city_df.merge(energy_forecast_df, on="dt_iso") 
     City_Weather_Data_df["dt_iso"] = pd.to_datetime(City_Weather_Data_df["dt_iso"], utc=True, infer_datetime_format=True)
     City_Weather_Data_df["dt_iso"] = pd.to_datetime(City_Weather_Data_df["dt_iso"]).astype(int)/10**9
     return City_Weather_Data_df
 
 def write_SQL (engine, conn, df, df_name):
+    # Write merged tables to SQLite Database
     new_columns = [column.replace(' ', '_').lower() for column in df]
     df.columns = new_columns
     df.to_sql(df_name,
@@ -93,20 +96,22 @@ def write_SQL (engine, conn, df, df_name):
                     "excessive_waste": Integer()})
 
 def write_SQL2(df, df_name, conn):
+    # Write Energy Table to SQL - Uses SQLite3
     df.to_sql(df_name, conn, if_exists='replace', index=False)
 
 def sql_join(engine):
     ### SQLite Join Function
     Base = automap_base()
     Base.prepare(engine, reflect=True)
-    print(Base.classes.keys()) # No Data? -- No primary Key
-    Forecast_Madrid = Base.classes.forecast_Madrid
-    Forecast_Barcelona = Base.classes.forecast_Barcelona
-    session = Sesion(engine)
+    print(Base.classes.keys()) # No Data? -- No primary Key?
+    session = Session(engine)
 
+    #Forecast_Madrid = Base.classes.forecast_Madrid
+    #Forecast_Barcelona = Base.classes.forecast_Barcelona
     #result = session.query(Forecast_Madrid).join(Forecast_Barcelona).all() # Join all items
-
+    
 def model_output(results, y_test, y_pred):
+    # Print Model Output information
     print(results.head())
     print("\nAccuracy Score: " + str(accuracy_score(y_test, y_pred)))
     print("\nConfusion Matrix")
@@ -116,19 +121,10 @@ def model_output(results, y_test, y_pred):
     print(classification_report(y_test, y_pred))
 
 def model_test(df, df2):
-    # Machine Learning Portion - Supervised Learning
-    ### Logistic Regression
-    ## 17.3.1 - 17.3.3 for code (17.3.2)
-    ## Madrid = Train
-    ## 17.4.1 - Accuracy, Precision, Sensitivity
-    ## 17.4.2 - Confusion Matrix
-
-    ### Support Vector Machine (SVM)
-    ## 17.5.2 - SVM
-
-    ## 17.6.4 - Scale & Normalize Data
-    ## 17.7.2 - Decision Tree
-
+    # Machine Learning - Supervised Learning Testing
+    ## Madrid --> Train & Test set
+   
+    # Split Columns
     y = df["excessive_waste"]
     X = df.drop(columns="excessive_waste")
 
@@ -189,7 +185,7 @@ def model_test(df, df2):
     }).reset_index(drop=True)
     model_output(results, y_test, y_pred)
 
-    ### Production Test
+    ### Production Test - mulitple cities
     y = df["excessive_waste"]
     X = df.drop(columns="excessive_waste")
     y_test = df2["excessive_waste"]
@@ -247,16 +243,17 @@ def city_compare(df, df2, df2_name):
 def generate_Pics(df):
     ### Generate Pic
     # Scatter Plot
-    plot = Madrid_df.hvplot.scatter("temp",y="pressure",by="excessive waste")
+    plot = Madrid_df.hvplot.scatter("temp",y="pressure",by="excessive_waste")
     hvplot.show(plot)
 
-    plot = Madrid_df.hvplot.scatter("humidity",y="pressure",by="excessive waste")
+    plot = Madrid_df.hvplot.scatter("humidity",y="pressure",by="excessive_waste")
     hvplot.show(plot)
 
-    plot = Madrid_df.hvplot.scatter("wind_speed",y="wind_deg",by="excessive waste")
+    plot = Madrid_df.hvplot.scatter("wind_speed",y="wind_deg",by="excessive_waste")
     hvplot.show(plot)
 
 def generate_sankey(df):
+    # Generates data for use in Sankey Plot
     # print(df.head())
     df.drop(["dt_iso",
         "forecast solar day ahead", 
@@ -272,7 +269,6 @@ def generate_sankey(df):
     out_df = pd.DataFrame(sumReport).transpose()
     out_df.to_csv("Output/energySum.csv", index=True)
 
-# def temp():
 ### MAIN ####
 # Import Data
 weather_df = import_data("Resources/weather_features.csv")
@@ -358,6 +354,7 @@ city_compare(Madrid_df, Seville_df, "Seville")
 city_compare(Madrid_df, Bilbao_df, "Bilbao")
 city_compare(Madrid_df, Madrid_df, "Madrid")
 
+# Misc Actions 
 sql_join(engine)
 generate_Pics(Madrid_df)
 generate_sankey(energy_df)
