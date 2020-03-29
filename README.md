@@ -1,34 +1,33 @@
 # Wasted_Energy_Generation
-Use Machine Learning to predict energy generation &amp; energy wasted
+## Yu-Shuo "Nick" Chen & Joe Merkel 
+Use Machine Learning to predict wasted energy situations
 
 ## Presentation
-[Presentation](https://docs.google.com/presentation/d/1yfZyfvpHZm6fd5A6OndYg5I7bu-Obim3QkOrRmsWnZM/edit?usp=sharing)
+- [Presentation](https://docs.google.com/presentation/d/1yfZyfvpHZm6fd5A6OndYg5I7bu-Obim3QkOrRmsWnZM/edit?usp=sharing)
+- Notes for the presentation can be found in the presentation itself.
 
 ## Dashboard
-### UPDATE
-[Presentation](https://docs.google.com/presentation/d/1yfZyfvpHZm6fd5A6OndYg5I7bu-Obim3QkOrRmsWnZM/edit?usp=sharing)
-### UPDATE
+[Dashboard](Dashboard/index.html)
 
 
 ### Topic
-From the perspective of a power generation/utility company, we are attempting to determine if it is possible to identify & predict situations where an excessive amount of energy is generated due to weather various weather conditions.
+From the perspective of a power generation/utility company, we are attempting to determine if it is possible to identify & predict situations where an excessive amount of energy is generated due to various weather conditions.
 
 
 ### Reason why selected topic
-Many industrial companies and regional Utilities are using Big Data tools (such as Historical Data Archives) to record and analyze equipment data. This is being done in an effort to optimize production, reduce maintenance time, cut unnecessary costs, and identify safety/pollution risks.
+Many industrial companies and regional Utilities are using Big Data tools (such as Historical Data Archives) to record and analyze data. This is being done in an effort to optimize production, reduce maintenance time, cut unnecessary costs, and identify safety/pollution risks.
 
 By predicting which combination of weather features leads to wasted energy generation, we are solving a common problem many utilities and energy companies face: how to determine which power-plants need to be operational and if the generation (and pollution) from those plants are more than necessary to meet power demands.
 
 
 ### Description of data source
-The data used in this model is based in Spain. The Kaggle compiled dataset uses energy production/demand data from the ENTSOE Public portal. The weather data is sourced from the Open Weather API and focuses on the 5 largest Spanish Cities. In both cases, each data source takes readings hourly between 2015 through 2019.
+The data used in this model is sourced from Spain. The Kaggle compiled CSV dataset uses energy production/demand data from the ENTSOE Public portal. The weather data is sourced from the Open Weather API and focuses on the 5 largest Spanish Cities. In both cases, each data source takes readings hourly between 2015 through 2018.
 
 The weather dataset contains information for each city such as temperatures, pressure, wind speed, rain, clouds and description. The energy dataset contains energy generation readings from different types of generators (Biomass, Wind, Fossil Fuel, etc.), forecasted energy generation, actual demand, and price.
 
 
 ### Questions hope to answer
 - Can we predict if the current configuration of energy production will waste over 300 MW of energy based on weather conditions?
-- Can we predict specific times or days that will require out of the ordinary amounts of power?
 
 
 ### Description of Data Exploration
@@ -129,9 +128,8 @@ Our model was not particularly successful in identifying wasted energy situation
 
 
 ### Statistical Analysis for next phase of project?
-- Are the situations where energy generation is wasted continuous or occur sporadically
-- Predict the energy generated and energy wasted
-- Compare predicted energy generation and predicted energy wasted, with the actual values. Identify if the predictions are accurate.
+- Are the situations where energy generation is wasted continuous (multiple hours in a row) or does it occur sporadically?
+- Predict the energy generated and energy wasted amounts.
 
 
 ## References
